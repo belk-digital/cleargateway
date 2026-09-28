@@ -20,7 +20,7 @@ services:
   - type: web
     name: cleargateway-api
     runtime: node
-    plan: starter
+    plan: free
     rootDir: .
     buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
     preDeployCommand: pnpm db:migrate
@@ -78,45 +78,16 @@ services:
       - key: SENTRY_DSN
         sync: false
 
-  # Background jobs: watches the chain, confirms payments, sends webhooks, sweeps deposits, reconciles.
-  - type: worker
-    name: cleargateway-worker
-    runtime: node
-    plan: starter
-    rootDir: .
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
-    startCommand: node apps/worker/dist/index.js
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATABASE_URL
-        fromDatabase: { name: cleargateway-db, property: connectionString }
-      - key: REDIS_URL
-        fromService: { name: cleargateway-redis, type: redis, property: connectionString }
-      - key: CHAIN_ID
-        value: "84532"
-      - key: RPC_URL
-        value: https://sepolia.base.org
-      - key: USDC_ADDRESS
-        value: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
-      - key: SPLITTER_ADDRESS
-        sync: false
-      - key: DEPOSIT_FACTORY_ADDRESS
-        sync: false
-      - key: SIGNER_PRIVATE_KEY
-        sync: false
-      - key: RELAYER_PRIVATE_KEY
-        sync: false
-      - key: WATCHER_START_BLOCK
-        sync: false # set to the splitter's deployment block once known
-      - key: RECONCILE_CRON
-        value: "0 3 * * *"
+  # Background jobs (watches the chain, confirms payments, sends webhooks, sweeps deposits, reconciles) are LEFT OUT
+  # of this file for now: Render's Background Worker type has no free tier, so adding it here would force a card on
+  # everyone applying this blueprint. Until it's added back, wallet/deposit payments won't be confirmed automatically.
+  # See render.worker.yaml.example for the block to add once billing is set up.
 
   # Landing page, docs, merchant dashboard, staff console and hosted checkout (Next.js).
   - type: web
     name: cleargateway-web
     runtime: node
-    plan: starter
+    plan: free
     rootDir: .
     buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
     startCommand: pnpm --filter @belk/web start

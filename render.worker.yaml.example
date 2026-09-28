@@ -1,0 +1,38 @@
+# Background worker service for Render — not applied automatically (see the note in render.yaml).
+# Render's Background Worker type has no free tier, so this is kept separate until billing is set up.
+#
+# To add it: open the Render dashboard -> New + -> Blueprint -> pick this repo again, after first copying this
+# block into render.yaml's `services:` list (indentation must match the other entries). Render will diff against
+# what's already deployed and add just this one new service.
+- type: worker
+  name: cleargateway-worker
+  runtime: node
+  plan: starter
+  rootDir: .
+  buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+  startCommand: node apps/worker/dist/index.js
+  envVars:
+    - key: NODE_ENV
+      value: production
+    - key: DATABASE_URL
+      fromDatabase: { name: cleargateway-db, property: connectionString }
+    - key: REDIS_URL
+      fromService: { name: cleargateway-redis, type: redis, property: connectionString }
+    - key: CHAIN_ID
+      value: "84532"
+    - key: RPC_URL
+      value: https://sepolia.base.org
+    - key: USDC_ADDRESS
+      value: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    - key: SPLITTER_ADDRESS
+      sync: false
+    - key: DEPOSIT_FACTORY_ADDRESS
+      sync: false
+    - key: SIGNER_PRIVATE_KEY
+      sync: false
+    - key: RELAYER_PRIVATE_KEY
+      sync: false
+    - key: WATCHER_START_BLOCK
+      sync: false # set to the splitter's deployment block once known
+    - key: RECONCILE_CRON
+      value: "0 3 * * *"
