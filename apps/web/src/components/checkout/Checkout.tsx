@@ -101,7 +101,7 @@ export function Checkout({ id, secret }: { id: string; secret: string }) {
         </Card>
       ) : (
         <Card>
-          <div role="tablist" className="mb-5 grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-sm">
+          <div role="tablist" className="mb-5 grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-xs sm:text-sm">
             {(
               [
                 ["wallet", "Wallet"],
@@ -109,7 +109,7 @@ export function Checkout({ id, secret }: { id: string; secret: string }) {
                 ["card", "Card"],
               ] as [Tab, string][]
             ).map(([t, label]) => (
-              <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`rounded-md px-2 py-2 font-medium ${tab === t ? "bg-white shadow-sm" : "text-slate-600"}`}>
+              <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`rounded-md px-1.5 py-2 font-medium leading-tight ${tab === t ? "bg-white shadow-sm" : "text-slate-600"}`}>
                 {label}
               </button>
             ))}
