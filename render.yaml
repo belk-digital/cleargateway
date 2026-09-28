@@ -24,8 +24,9 @@ services:
     plan: free
     rootDir: .
     buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
-    preDeployCommand: pnpm db:migrate
-    startCommand: node apps/api/dist/server.js
+    # preDeployCommand needs a paid plan; running the migration right before the server starts has the same effect
+    # on the free tier (each deploy still migrates before serving traffic).
+    startCommand: pnpm db:migrate && node apps/api/dist/server.js
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
