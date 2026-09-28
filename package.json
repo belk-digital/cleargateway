@@ -1,0 +1,32 @@
+{
+  "name": "cleargateway-pay",
+  "private": true,
+  "packageManager": "pnpm@10.18.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "db:generate": "pnpm --filter @belk/db generate",
+    "db:migrate": "pnpm --filter @belk/db migrate",
+    "db:seed": "pnpm --filter @belk/db seed",
+    "dev:api": "pnpm --filter @belk/api dev",
+    "contracts:build": "docker compose run --rm foundry \"forge build\"",
+    "contracts:test": "docker compose run --rm foundry \"forge test -vv\"",
+    "contracts:export-abi": "node scripts/export-abi.mjs",
+    "dev:worker": "pnpm --filter @belk/worker dev",
+    "reconcile": "pnpm --filter @belk/worker reconcile",
+    "dev:web": "pnpm --filter @belk/web dev"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0",
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0",
+    "@types/node": "^22.0.0"
+  }
+}

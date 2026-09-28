@@ -1,0 +1,2 @@
+ALTER TABLE "onramp_sessions" ADD COLUMN "updated_at" timestamp with time zone DEFAULT now() NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "onramp_sessions_provider_ref_uq" ON "onramp_sessions" USING btree ("provider","provider_session_id");

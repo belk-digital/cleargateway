@@ -1,0 +1,2077 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ClearGateway API",
+    "version": "1.0.0",
+    "description": "Non-custodial stablecoin payments (testnet)."
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "adminAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Internal API: ADMIN_TOKEN, plus an X-Admin-Email header naming a staff account."
+      }
+    },
+    "schemas": {}
+  },
+  "paths": {
+    "/v1/payment_intents": {
+      "post": {
+        "summary": "Create a payment intent",
+        "tags": [
+          "payment_intents"
+        ],
+        "description": "Requires an `Idempotency-Key` header. `amount` is an integer string in USDC base units (6 decimals). The response includes `checkout_url` for the hosted checkout page.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "string",
+                    "pattern": "^[1-9]\\d{0,17}$"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "USDC"
+                    ],
+                    "default": "USDC"
+                  },
+                  "merchant_order_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 500
+                    },
+                    "default": {}
+                  },
+                  "customer_email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 320
+                  },
+                  "success_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "maxLength": 2048
+                  },
+                  "cancel_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "maxLength": 2048
+                  },
+                  "expires_in_seconds": {
+                    "type": "integer",
+                    "minimum": 300,
+                    "maximum": 86400,
+                    "default": 3600
+                  }
+                },
+                "required": [
+                  "amount"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "payment_intent"
+                      ]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "test",
+                        "live"
+                      ]
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "decimals": {
+                      "type": "number"
+                    },
+                    "fee_bps": {
+                      "type": "number"
+                    },
+                    "fee_amount": {
+                      "type": "string"
+                    },
+                    "merchant_amount": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "created",
+                        "awaiting_payment",
+                        "confirming",
+                        "succeeded",
+                        "expired",
+                        "underpaid",
+                        "failed",
+                        "canceled",
+                        "refunded",
+                        "partially_refunded"
+                      ]
+                    },
+                    "payment_method": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "merchant_order_id": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "customer_email": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "payer_address": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "success_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancel_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "tx_hash": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "confirmations": {
+                      "type": "number"
+                    },
+                    "requires_review": {
+                      "type": "boolean"
+                    },
+                    "expires_at": {
+                      "type": "string"
+                    },
+                    "succeeded_at": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "client_secret": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "checkout_url": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "object",
+                    "mode",
+                    "amount",
+                    "currency",
+                    "decimals",
+                    "fee_bps",
+                    "fee_amount",
+                    "merchant_amount",
+                    "status",
+                    "payment_method",
+                    "merchant_order_id",
+                    "metadata",
+                    "customer_email",
+                    "payer_address",
+                    "success_url",
+                    "cancel_url",
+                    "tx_hash",
+                    "confirmations",
+                    "requires_review",
+                    "expires_at",
+                    "succeeded_at",
+                    "created_at",
+                    "client_secret",
+                    "checkout_url"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List payment intents (cursor pagination, newest first)",
+        "tags": [
+          "payment_intents"
+        ],
+        "description": "Pass the last id of a page as `starting_after` to fetch the next page.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^pi_[0-9a-f]{32}$"
+            },
+            "in": "query",
+            "name": "starting_after",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created",
+                "awaiting_payment",
+                "confirming",
+                "succeeded",
+                "expired",
+                "underpaid",
+                "failed",
+                "canceled",
+                "refunded",
+                "partially_refunded"
+              ]
+            },
+            "in": "query",
+            "name": "status",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "in": "query",
+            "name": "created_gte",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "in": "query",
+            "name": "created_lte",
+            "required": false
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "object": {
+                            "type": "string",
+                            "enum": [
+                              "payment_intent"
+                            ]
+                          },
+                          "mode": {
+                            "type": "string",
+                            "enum": [
+                              "test",
+                              "live"
+                            ]
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "decimals": {
+                            "type": "number"
+                          },
+                          "fee_bps": {
+                            "type": "number"
+                          },
+                          "fee_amount": {
+                            "type": "string"
+                          },
+                          "merchant_amount": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "awaiting_payment",
+                              "confirming",
+                              "succeeded",
+                              "expired",
+                              "underpaid",
+                              "failed",
+                              "canceled",
+                              "refunded",
+                              "partially_refunded"
+                            ]
+                          },
+                          "payment_method": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "merchant_order_id": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "metadata": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "customer_email": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "payer_address": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "success_url": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "cancel_url": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "tx_hash": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "confirmations": {
+                            "type": "number"
+                          },
+                          "requires_review": {
+                            "type": "boolean"
+                          },
+                          "expires_at": {
+                            "type": "string"
+                          },
+                          "succeeded_at": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "created_at": {
+                            "type": "string"
+                          },
+                          "client_secret": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "checkout_url": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "object",
+                          "mode",
+                          "amount",
+                          "currency",
+                          "decimals",
+                          "fee_bps",
+                          "fee_amount",
+                          "merchant_amount",
+                          "status",
+                          "payment_method",
+                          "merchant_order_id",
+                          "metadata",
+                          "customer_email",
+                          "payer_address",
+                          "success_url",
+                          "cancel_url",
+                          "tx_hash",
+                          "confirmations",
+                          "requires_review",
+                          "expires_at",
+                          "succeeded_at",
+                          "created_at",
+                          "client_secret",
+                          "checkout_url"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/payment_intents/{id}": {
+      "get": {
+        "summary": "Retrieve a payment intent",
+        "tags": [
+          "payment_intents"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^pi_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "payment_intent"
+                      ]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "test",
+                        "live"
+                      ]
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "decimals": {
+                      "type": "number"
+                    },
+                    "fee_bps": {
+                      "type": "number"
+                    },
+                    "fee_amount": {
+                      "type": "string"
+                    },
+                    "merchant_amount": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "created",
+                        "awaiting_payment",
+                        "confirming",
+                        "succeeded",
+                        "expired",
+                        "underpaid",
+                        "failed",
+                        "canceled",
+                        "refunded",
+                        "partially_refunded"
+                      ]
+                    },
+                    "payment_method": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "merchant_order_id": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "customer_email": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "payer_address": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "success_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancel_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "tx_hash": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "confirmations": {
+                      "type": "number"
+                    },
+                    "requires_review": {
+                      "type": "boolean"
+                    },
+                    "expires_at": {
+                      "type": "string"
+                    },
+                    "succeeded_at": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "client_secret": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "checkout_url": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "object",
+                    "mode",
+                    "amount",
+                    "currency",
+                    "decimals",
+                    "fee_bps",
+                    "fee_amount",
+                    "merchant_amount",
+                    "status",
+                    "payment_method",
+                    "merchant_order_id",
+                    "metadata",
+                    "customer_email",
+                    "payer_address",
+                    "success_url",
+                    "cancel_url",
+                    "tx_hash",
+                    "confirmations",
+                    "requires_review",
+                    "expires_at",
+                    "succeeded_at",
+                    "created_at",
+                    "client_secret",
+                    "checkout_url"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/payment_intents/{id}/cancel": {
+      "post": {
+        "summary": "Cancel an unpaid payment intent",
+        "tags": [
+          "payment_intents"
+        ],
+        "description": "Allowed only while `created` or `awaiting_payment`. A wallet payload already issued stays valid on-chain until its signature expiry; a payment landing after cancellation is flagged for review, never dropped.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^pi_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "payment_intent"
+                      ]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "test",
+                        "live"
+                      ]
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "decimals": {
+                      "type": "number"
+                    },
+                    "fee_bps": {
+                      "type": "number"
+                    },
+                    "fee_amount": {
+                      "type": "string"
+                    },
+                    "merchant_amount": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "created",
+                        "awaiting_payment",
+                        "confirming",
+                        "succeeded",
+                        "expired",
+                        "underpaid",
+                        "failed",
+                        "canceled",
+                        "refunded",
+                        "partially_refunded"
+                      ]
+                    },
+                    "payment_method": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "merchant_order_id": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "customer_email": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "payer_address": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "success_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancel_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "tx_hash": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "confirmations": {
+                      "type": "number"
+                    },
+                    "requires_review": {
+                      "type": "boolean"
+                    },
+                    "expires_at": {
+                      "type": "string"
+                    },
+                    "succeeded_at": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "client_secret": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "checkout_url": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "object",
+                    "mode",
+                    "amount",
+                    "currency",
+                    "decimals",
+                    "fee_bps",
+                    "fee_amount",
+                    "merchant_amount",
+                    "status",
+                    "payment_method",
+                    "merchant_order_id",
+                    "metadata",
+                    "customer_email",
+                    "payer_address",
+                    "success_url",
+                    "cancel_url",
+                    "tx_hash",
+                    "confirmations",
+                    "requires_review",
+                    "expires_at",
+                    "succeeded_at",
+                    "created_at",
+                    "client_secret",
+                    "checkout_url"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/balance": {
+      "get": {
+        "summary": "Merchant totals, computed from the double-entry ledger",
+        "tags": [
+          "balance"
+        ],
+        "description": "Derived from ledger entries on the merchant's receivable account, never by summing payment intents. Only confirmed (on-chain, final) payments and recorded refunds appear here.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "balance"
+                      ]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "test",
+                        "live"
+                      ]
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "decimals": {
+                      "type": "number"
+                    },
+                    "settled": {
+                      "type": "string"
+                    },
+                    "refunded": {
+                      "type": "string"
+                    },
+                    "net": {
+                      "type": "string"
+                    },
+                    "settled_payments": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "mode",
+                    "currency",
+                    "decimals",
+                    "settled",
+                    "refunded",
+                    "net",
+                    "settled_payments"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/webhook_endpoints": {
+      "post": {
+        "summary": "Create a webhook endpoint",
+        "tags": [
+          "webhook_endpoints"
+        ],
+        "description": "Returns the signing `secret` exactly once. Deliveries carry `ClearGateway-Signature: t=<unix>,v1=<HMAC-SHA256 of \"<t>.<raw body>\">`. In production the URL must be https and must not resolve to a private address.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "maxLength": 2048
+                  },
+                  "enabled_events": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "*",
+                        "payment_intent.succeeded",
+                        "payment_intent.expired",
+                        "payment_intent.underpaid",
+                        "payment_intent.failed",
+                        "payment_intent.requires_review",
+                        "refund.created"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "default": [
+                      "*"
+                    ]
+                  }
+                },
+                "required": [
+                  "url"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "webhook_endpoint"
+                      ]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "test",
+                        "live"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "enabled_events": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "enabled",
+                        "disabled"
+                      ]
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "secret": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "object",
+                    "mode",
+                    "url",
+                    "enabled_events",
+                    "status",
+                    "created_at"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List webhook endpoints",
+        "tags": [
+          "webhook_endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "object": {
+                            "type": "string",
+                            "enum": [
+                              "webhook_endpoint"
+                            ]
+                          },
+                          "mode": {
+                            "type": "string",
+                            "enum": [
+                              "test",
+                              "live"
+                            ]
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "enabled_events": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "enabled",
+                              "disabled"
+                            ]
+                          },
+                          "created_at": {
+                            "type": "string"
+                          },
+                          "secret": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "object",
+                          "mode",
+                          "url",
+                          "enabled_events",
+                          "status",
+                          "created_at"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/webhook_endpoints/{id}": {
+      "get": {
+        "summary": "Retrieve a webhook endpoint",
+        "tags": [
+          "webhook_endpoints"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^we_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "webhook_endpoint"
+                      ]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "test",
+                        "live"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "enabled_events": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "enabled",
+                        "disabled"
+                      ]
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "secret": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "object",
+                    "mode",
+                    "url",
+                    "enabled_events",
+                    "status",
+                    "created_at"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a webhook endpoint",
+        "tags": [
+          "webhook_endpoints"
+        ],
+        "description": "Stops future deliveries; pending deliveries to it are abandoned.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^we_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "webhook_endpoint"
+                      ]
+                    },
+                    "deleted": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "object",
+                    "deleted"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/webhook_endpoints/{id}/test": {
+      "post": {
+        "summary": "Send a test event to this endpoint",
+        "tags": [
+          "webhook_endpoints"
+        ],
+        "description": "Queues a `webhook.test` event; the delivery worker sends it like any other event.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^we_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "webhook_test"
+                      ]
+                    },
+                    "endpoint_id": {
+                      "type": "string"
+                    },
+                    "queued": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "endpoint_id",
+                    "queued"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/refunds": {
+      "post": {
+        "summary": "Record a refund request",
+        "tags": [
+          "refunds"
+        ],
+        "description": "Records the request only: nothing is sent on-chain yet. `amount` (USDC base units) defaults to everything still refundable. The total of all live refunds can never exceed the amount the customer paid. Emits `refund.created`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "payment_intent_id": {
+                    "type": "string",
+                    "pattern": "^pi_[0-9a-f]{32}$"
+                  },
+                  "amount": {
+                    "type": "string",
+                    "pattern": "^[1-9]\\d{0,17}$"
+                  },
+                  "to_address": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "payment_intent_id",
+                  "to_address"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "refund"
+                      ]
+                    },
+                    "payment_intent_id": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "decimals": {
+                      "type": "number"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "requested",
+                        "approved",
+                        "processing",
+                        "succeeded",
+                        "failed",
+                        "rejected"
+                      ]
+                    },
+                    "to_address": {
+                      "type": "string"
+                    },
+                    "tx_hash": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "reason": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "requested_by": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "updated_at": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "object",
+                    "payment_intent_id",
+                    "amount",
+                    "currency",
+                    "decimals",
+                    "status",
+                    "to_address",
+                    "tx_hash",
+                    "reason",
+                    "requested_by",
+                    "created_at",
+                    "updated_at"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List your refunds (newest first, cursor pagination)",
+        "tags": [
+          "refunds"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "in": "query",
+            "name": "starting_after",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^pi_[0-9a-f]{32}$"
+            },
+            "in": "query",
+            "name": "payment_intent_id",
+            "required": false
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "list"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "object": {
+                            "type": "string",
+                            "enum": [
+                              "refund"
+                            ]
+                          },
+                          "payment_intent_id": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "decimals": {
+                            "type": "number"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "requested",
+                              "approved",
+                              "processing",
+                              "succeeded",
+                              "failed",
+                              "rejected"
+                            ]
+                          },
+                          "to_address": {
+                            "type": "string"
+                          },
+                          "tx_hash": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "reason": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "requested_by": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string"
+                          },
+                          "updated_at": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "object",
+                          "payment_intent_id",
+                          "amount",
+                          "currency",
+                          "decimals",
+                          "status",
+                          "to_address",
+                          "tx_hash",
+                          "reason",
+                          "requested_by",
+                          "created_at",
+                          "updated_at"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/refunds/{id}": {
+      "get": {
+        "summary": "Retrieve a refund",
+        "tags": [
+          "refunds"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^re_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "refund"
+                      ]
+                    },
+                    "payment_intent_id": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "decimals": {
+                      "type": "number"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "requested",
+                        "approved",
+                        "processing",
+                        "succeeded",
+                        "failed",
+                        "rejected"
+                      ]
+                    },
+                    "to_address": {
+                      "type": "string"
+                    },
+                    "tx_hash": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "reason": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "requested_by": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "updated_at": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "object",
+                    "payment_intent_id",
+                    "amount",
+                    "currency",
+                    "decimals",
+                    "status",
+                    "to_address",
+                    "tx_hash",
+                    "reason",
+                    "requested_by",
+                    "created_at",
+                    "updated_at"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/checkout/{intentId}": {
+      "get": {
+        "summary": "Public-safe fields for rendering checkout",
+        "tags": [
+          "checkout"
+        ],
+        "description": "Public endpoint scoped to one intent. Authenticate with the intent's client secret via the `x-client-secret` header (or `client_secret` query parameter for EventSource, which cannot set headers).",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "query",
+            "name": "client_secret",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^pi_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "intentId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "header",
+            "name": "x-client-secret",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/checkout/{intentId}/wallet-payment": {
+      "post": {
+        "summary": "Get the signed payload for paying from a connected wallet",
+        "tags": [
+          "checkout"
+        ],
+        "description": "Public endpoint scoped to one intent. Authenticate with the intent's client secret via the `x-client-secret` header (or `client_secret` query parameter for EventSource, which cannot set headers). `method=approve` returns approval + `pay` arguments; `method=authorization` returns EIP-3009 typed data for a one-signature payment via `payWithAuthorization`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "payer_address": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "approve",
+                      "authorization"
+                    ],
+                    "default": "approve"
+                  }
+                },
+                "required": [
+                  "payer_address"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "query",
+            "name": "client_secret",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^pi_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "intentId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "header",
+            "name": "x-client-secret",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/checkout/{intentId}/deposit-address": {
+      "post": {
+        "summary": "Get (or create) a per-payment deposit address for sending USDC from an exchange",
+        "tags": [
+          "checkout"
+        ],
+        "description": "Public endpoint scoped to one intent. Authenticate with the intent's client secret via the `x-client-secret` header (or `client_secret` query parameter for EventSource, which cannot set headers). Idempotent: returns the same address on every call. The customer sends USDC on Base to this address; the platform detects, confirms and settles the payment automatically, with no signature from the customer.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "query",
+            "name": "client_secret",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^pi_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "intentId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "header",
+            "name": "x-client-secret",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/checkout/{intentId}/onramp-session": {
+      "post": {
+        "summary": "Create a card / Apple Pay on-ramp session (Wert primary, Simplex secondary; provider picked per merchant)",
+        "tags": [
+          "checkout"
+        ],
+        "description": "Public endpoint scoped to one intent. Authenticate with the intent's client secret via the `x-client-secret` header (or `client_secret` query parameter for EventSource, which cannot set headers). The on-ramp delivers USDC to `customer_wallet_address`, which must belong to the customer (never the merchant's payout wallet, the splitter, or the USDC contract). That wallet then pays through `/wallet-payment` once funded; this endpoint never marks the intent paid.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customer_wallet_address": {
+                    "type": "string"
+                  },
+                  "customer_email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 320
+                  }
+                },
+                "required": [
+                  "customer_wallet_address"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "query",
+            "name": "client_secret",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^pi_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "intentId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "header",
+            "name": "x-client-secret",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/checkout/{intentId}/status": {
+      "get": {
+        "summary": "Poll payment status",
+        "tags": [
+          "checkout"
+        ],
+        "description": "Public endpoint scoped to one intent. Authenticate with the intent's client secret via the `x-client-secret` header (or `client_secret` query parameter for EventSource, which cannot set headers).",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "query",
+            "name": "client_secret",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^pi_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "intentId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "header",
+            "name": "x-client-secret",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/checkout/{intentId}/status/stream": {
+      "get": {
+        "summary": "Server-sent events stream of status changes",
+        "tags": [
+          "checkout"
+        ],
+        "description": "Public endpoint scoped to one intent. Authenticate with the intent's client secret via the `x-client-secret` header (or `client_secret` query parameter for EventSource, which cannot set headers). Emits `status` events on change and closes once the payment reaches a final state.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "query",
+            "name": "client_secret",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^pi_[0-9a-f]{32}$"
+            },
+            "in": "path",
+            "name": "intentId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "in": "header",
+            "name": "x-client-secret",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    }
+  }
+}

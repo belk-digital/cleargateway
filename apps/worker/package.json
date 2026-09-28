@@ -1,0 +1,33 @@
+{
+  "name": "@belk/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "reconcile": "tsx src/reconcile-cli.ts"
+  },
+  "dependencies": {
+    "@belk/chain": "workspace:*",
+    "@belk/db": "workspace:*",
+    "@belk/shared": "workspace:*",
+    "@sentry/node": "^10.0.0",
+    "bullmq": "^5.56.0",
+    "drizzle-orm": "^0.44.0",
+    "ioredis": "^5.6.0",
+    "pino": "^9.7.0",
+    "viem": "^2.33.0",
+    "zod": "^3.25.0",
+    "@belk/onramp": "workspace:*"
+  },
+  "devDependencies": {
+    "@belk/api": "workspace:*",
+    "tsx": "^4.20.0",
+    "fastify": "^5.4.0"
+  }
+}

@@ -1,0 +1,131 @@
+# Render Blueprint: provisions everything ClearGateway needs in one go.
+# Usage: push this repo to GitHub, then in Render click New -> Blueprint and pick the repo.
+# Render reads this file and creates the database, cache, and three services below automatically.
+#
+# Anything marked `sync: false` is a secret or environment-specific value Render will prompt you
+# for in its dashboard instead of storing here — never put real secrets in this file.
+databases:
+  - name: cleargateway-db
+    plan: free
+    postgresMajorVersion: "16"
+
+services:
+  # Cache used for rate limiting and the background job queue.
+  - type: redis
+    name: cleargateway-redis
+    plan: free
+    ipAllowList: [] # only reachable from other services in this Render project
+
+  # Public API. Merchants integrate against this.
+  - type: web
+    name: cleargateway-api
+    runtime: node
+    plan: starter
+    rootDir: .
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    preDeployCommand: pnpm db:migrate
+    startCommand: node apps/api/dist/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase: { name: cleargateway-db, property: connectionString }
+      - key: REDIS_URL
+        fromService: { name: cleargateway-redis, type: redis, property: connectionString }
+      - key: CHAIN_ID
+        value: "84532"
+      - key: RPC_URL
+        value: https://sepolia.base.org
+      - key: USDC_ADDRESS
+        value: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+      - key: SPLITTER_ADDRESS
+        sync: false # filled in after contracts are deployed
+      - key: DEPOSIT_FACTORY_ADDRESS
+        sync: false
+      - key: PLATFORM_WALLET_ADDRESS
+        sync: false
+      - key: SIGNER_PRIVATE_KEY
+        sync: false
+      - key: CONFIRMATIONS
+        value: "5"
+      - key: CHECKOUT_ORIGIN
+        value: https://www.cleargateway.com
+      - key: CHECKOUT_BASE_URL
+        value: https://www.cleargateway.com/pay
+      - key: ADMIN_TOKEN
+        sync: false
+      - key: CLIENT_SECRET_KEY
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: TRUST_PROXY
+        value: "true" # Render sits in front as a proxy
+      - key: RATE_LIMIT_PER_KEY_PER_MIN
+        value: "600"
+      - key: RATE_LIMIT_PER_IP_PER_MIN
+        value: "300"
+      - key: AUTH_RATE_LIMIT_PER_MIN
+        value: "10"
+      - key: SIGNATURE_MAX_TTL_SECONDS
+        value: "1800"
+      - key: WEBHOOK_ALLOW_PRIVATE_URLS
+        value: "false"
+      - key: CHAIN_WEBHOOK_MOCK_SECRET
+        generateValue: true
+      - key: ONRAMP_MOCK_SECRET
+        generateValue: true
+      - key: SENTRY_DSN
+        sync: false
+
+  # Background jobs: watches the chain, confirms payments, sends webhooks, sweeps deposits, reconciles.
+  - type: worker
+    name: cleargateway-worker
+    runtime: node
+    plan: starter
+    rootDir: .
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    startCommand: node apps/worker/dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase: { name: cleargateway-db, property: connectionString }
+      - key: REDIS_URL
+        fromService: { name: cleargateway-redis, type: redis, property: connectionString }
+      - key: CHAIN_ID
+        value: "84532"
+      - key: RPC_URL
+        value: https://sepolia.base.org
+      - key: USDC_ADDRESS
+        value: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+      - key: SPLITTER_ADDRESS
+        sync: false
+      - key: DEPOSIT_FACTORY_ADDRESS
+        sync: false
+      - key: SIGNER_PRIVATE_KEY
+        sync: false
+      - key: RELAYER_PRIVATE_KEY
+        sync: false
+      - key: WATCHER_START_BLOCK
+        sync: false # set to the splitter's deployment block once known
+      - key: RECONCILE_CRON
+        value: "0 3 * * *"
+
+  # Landing page, docs, merchant dashboard, staff console and hosted checkout (Next.js).
+  - type: web
+    name: cleargateway-web
+    runtime: node
+    plan: starter
+    rootDir: .
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm --filter @belk/web start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_BASE_URL
+        value: https://api.cleargateway.com
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: https://api.cleargateway.com
+      - key: SESSION_SECRET
+        generateValue: true
