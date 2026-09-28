@@ -10,11 +10,12 @@ databases:
     postgresMajorVersion: "16"
 
 services:
-  # Cache used for rate limiting and the background job queue.
-  - type: redis
+  # Cache used for rate limiting and the background job queue. Render calls this service type "Key Value"
+  # (Redis-compatible, runs Valkey); the older `redis` type name is deprecated and was defaulting to a paid plan.
+  - type: keyvalue
     name: cleargateway-redis
     plan: free
-    ipAllowList: [] # only reachable from other services in this Render project
+    ipAllowList: [] # empty = no public internet access; other Render services still reach it over the private network
 
   # Public API. Merchants integrate against this.
   - type: web
@@ -32,7 +33,7 @@ services:
       - key: DATABASE_URL
         fromDatabase: { name: cleargateway-db, property: connectionString }
       - key: REDIS_URL
-        fromService: { name: cleargateway-redis, type: redis, property: connectionString }
+        fromService: { name: cleargateway-redis, type: keyvalue, property: connectionString }
       - key: CHAIN_ID
         value: "84532"
       - key: RPC_URL
