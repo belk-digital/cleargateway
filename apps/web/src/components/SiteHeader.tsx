@@ -5,7 +5,7 @@ import { useState } from "react";
 const NAV = [
   { href: "/docs", label: "Docs" },
   { href: "/docs/api", label: "API reference" },
-  { href: "/docs/webhooks", label: "Webhooks" },
+  { href: "/blog", label: "Blog" },
 ];
 
 /** Header for the public site (landing and docs). Collapses into a menu below sm; the full row shows at sm and up. */
@@ -78,6 +78,7 @@ export function SiteFooter() {
         <span>© ClearGateway. Testnet only: no real money moves.</span>
         <span className="flex gap-4">
           <Link href="/docs">Docs</Link>
+          <Link href="/blog">Blog</Link>
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/admin">Staff</Link>
         </span>
