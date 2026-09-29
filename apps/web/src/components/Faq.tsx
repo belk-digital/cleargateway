@@ -1,3 +1,8 @@
+"use client";
+import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
+import { Reveal } from "@/components/motion/Motion";
+
 const FAQ: [string, string][] = [
   [
     "Is ClearGateway live for real payments?",
@@ -34,19 +39,50 @@ const FAQ: [string, string][] = [
 ];
 
 export function Faq() {
+  const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className="mx-auto max-w-3xl px-4 py-12">
-      <h2 className="mb-8 text-center text-2xl font-semibold">Frequently asked questions</h2>
-      <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
-        {FAQ.map(([q, a]) => (
-          <details key={q} className="group p-5 open:pb-5">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-slate-900">
-              {q}
-              <span className="shrink-0 text-slate-400 transition group-open:rotate-45">+</span>
-            </summary>
-            <p className="mt-3 text-sm leading-6 text-slate-600">{a}</p>
-          </details>
-        ))}
+    <section id="faq" className="bg-[#7B86D0] px-4 py-24 text-white [font-family:var(--font-manrope),ui-sans-serif,system-ui,sans-serif] sm:px-8">
+      <div className="mx-auto max-w-5xl">
+        <Reveal className="mb-12 text-center">
+          <p className="text-xs font-medium uppercase tracking-[0.35em] text-white/90">FAQ</p>
+          <span className="mx-auto mt-3 block h-px w-10 bg-white/70" />
+          <h2 className="mt-7 text-4xl font-medium leading-[1.2] tracking-[-0.04em] sm:text-6xl">Frequently asked questions</h2>
+        </Reveal>
+        <Reveal>
+          <div className="divide-y divide-white/20 overflow-hidden rounded-3xl border border-white/30 bg-white/15 shadow-[0_20px_60px_rgba(40,30,150,0.25)] backdrop-blur-xl">
+            {FAQ.map(([q, a], i) => {
+              const isOpen = open === i;
+              return (
+                <div key={q} className={`transition-colors ${isOpen ? "bg-white/10" : "hover:bg-white/5"}`}>
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    onClick={() => setOpen(isOpen ? null : i)}
+                    className="flex w-full items-center justify-between gap-4 p-6 text-left text-lg font-medium text-white"
+                  >
+                    {q}
+                    <motion.span animate={{ rotate: isOpen ? 45 : 0 }} transition={{ duration: 0.2 }} className="shrink-0 text-2xl leading-none text-white">
+                      +
+                    </motion.span>
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <p className="max-w-3xl px-6 pb-6 text-base leading-7 text-white/85">{a}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
+        </Reveal>
       </div>
     </section>
   );

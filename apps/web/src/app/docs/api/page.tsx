@@ -40,7 +40,7 @@ const TAG_TITLES: Record<string, string> = {
   checkout: "Hosted checkout (for custom checkout pages)",
 };
 const TAG_ORDER = ["payment_intents", "refunds", "webhook_endpoints", "balance", "checkout"];
-const METHOD_COLOR: Record<string, string> = { get: "bg-blue-100 text-blue-800", post: "bg-green-100 text-green-800", delete: "bg-red-100 text-red-800", put: "bg-amber-100 text-amber-800", patch: "bg-amber-100 text-amber-800" };
+const METHOD_COLOR: Record<string, string> = { get: "bg-sky-100 text-sky-700", post: "bg-emerald-100 text-emerald-700", delete: "bg-red-100 text-red-700", put: "bg-amber-100 text-amber-700", patch: "bg-amber-100 text-amber-700" };
 
 const typeOf = (s: Schema): string => {
   if (s.enum) return s.enum.map((e) => JSON.stringify(e)).join(" | ");
@@ -98,24 +98,24 @@ const renderText = (t: string) =>
 function PropTable({ rows }: { rows: ReturnType<typeof flatten> }) {
   if (rows.length === 0) return null;
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200">
+    <div className="overflow-x-auto rounded-xl border border-[#E3E8FA] bg-white">
       <table className="w-full text-left text-xs">
         <thead>
-          <tr className="border-b border-slate-200 bg-slate-50 text-slate-500">
-            <th className="px-3 py-1.5 font-medium">Field</th>
-            <th className="px-3 py-1.5 font-medium">Type</th>
-            <th className="px-3 py-1.5 font-medium">Details</th>
+          <tr className="border-b border-[#E3E8FA] bg-[#F3F4FF] text-[#7B86D0]">
+            <th className="px-3 py-2 font-semibold">Field</th>
+            <th className="px-3 py-2 font-semibold">Type</th>
+            <th className="px-3 py-2 font-semibold">Details</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-[#EEF0FA]">
           {rows.map((r) => (
             <tr key={r.name}>
-              <td className="whitespace-nowrap px-3 py-1.5 font-mono">
+              <td className="whitespace-nowrap px-3 py-2 font-mono text-[#3F4A7A]">
                 {r.name}
-                {r.required && <span className="ml-1 text-red-600">*</span>}
+                {r.required && <span className="ml-1 text-rose-500">*</span>}
               </td>
-              <td className="px-3 py-1.5 font-mono text-slate-600">{r.type}</td>
-              <td className="px-3 py-1.5 text-slate-600">{r.notes}</td>
+              <td className="px-3 py-2 font-mono text-[#5A6490]">{r.type}</td>
+              <td className="px-3 py-2 text-[#5A6490]">{r.notes}</td>
             </tr>
           ))}
         </tbody>
@@ -156,9 +156,9 @@ export default function Page() {
         units (6 decimals). See <a href="/docs/errors">Errors, limits &amp; idempotency</a>. A <code>*</code> marks required fields.
       </Callout>
 
-      <div className="flex flex-wrap gap-2 text-sm">
+      <div className="flex flex-wrap gap-2 pt-1 text-sm">
         {groups.map((g) => (
-          <a key={g.tag} href={`#${g.tag}`} className="rounded-full border border-slate-200 bg-white px-3 py-1 !no-underline hover:border-brand">
+          <a key={g.tag} href={`#${g.tag}`} className="rounded-full border border-[#D9E0F7] bg-white/80 px-4 py-1.5 font-medium !text-[#5A6490] !no-underline transition hover:-translate-y-0.5 hover:border-[#7B86D0] hover:!text-[#3F4A9C] hover:shadow-md hover:shadow-indigo-500/10">
             {TAG_TITLES[g.tag] ?? g.tag}
           </a>
         ))}
@@ -175,13 +175,16 @@ export default function Page() {
               const okCode = Object.keys(op.responses ?? {}).find((c) => c.startsWith("2"));
               const okSchema = okCode ? op.responses?.[okCode]?.content?.["application/json"]?.schema : undefined;
               return (
-                <details key={anchor(method, path)} id={anchor(method, path)} className="group rounded-xl border border-slate-200 bg-white open:shadow-sm">
-                  <summary className="flex cursor-pointer flex-wrap items-center gap-3 px-4 py-3">
-                    <span className={`rounded px-2 py-0.5 text-xs font-bold uppercase ${METHOD_COLOR[method]}`}>{method}</span>
-                    <code className="!bg-transparent !p-0 font-mono text-sm text-slate-900">{path}</code>
-                    <span className="text-sm text-slate-500">{op.summary}</span>
+                <details key={anchor(method, path)} id={anchor(method, path)} className="group scroll-mt-28 overflow-hidden rounded-2xl border border-[#E3E8FA] bg-white/80 transition-shadow open:border-[#7B86D0]/40 open:shadow-lg open:shadow-indigo-500/10">
+                  <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3.5 transition-colors hover:bg-[#F6F7FF] sm:px-5 [&::-webkit-details-marker]:hidden">
+                    <span className={`rounded-md px-2 py-0.5 text-xs font-bold uppercase ${METHOD_COLOR[method]}`}>{method}</span>
+                    <code className="min-w-0 break-all !bg-transparent !p-0 font-mono text-[13px] !text-[#3F4A7A] sm:text-sm">{path}</code>
+                    <span className="w-full text-sm text-[#7A83A6] sm:w-auto sm:flex-1">{op.summary}</span>
+                    <svg className="ml-auto hidden shrink-0 text-[#7B86D0] transition-transform duration-300 group-open:rotate-180 sm:block" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
                   </summary>
-                  <div className="space-y-4 border-t border-slate-100 px-4 py-4">
+                  <div className="space-y-4 border-t border-[#EEF0FA] px-4 py-4 sm:px-5">
                     {op.description && <p className="text-sm">{renderText(op.description)}</p>}
                     {headerParams.some((h) => h.required) && (
                       <p className="text-sm">
@@ -190,7 +193,7 @@ export default function Page() {
                     )}
                     {params.length > 0 && (
                       <div>
-                        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Path and query parameters</p>
+                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#7B86D0]">Path and query parameters</p>
                         <PropTable
                           rows={params.map((p) => ({ name: `${p.name} (${p.in})`, type: p.schema ? typeOf(p.schema) : "string", required: !!p.required, notes: p.schema ? notes(p.schema) : "" }))}
                         />
@@ -198,14 +201,14 @@ export default function Page() {
                     )}
                     {body && (
                       <div>
-                        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Request body</p>
+                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#7B86D0]">Request body</p>
                         <PropTable rows={flatten(body)} />
                       </div>
                     )}
                     <CodeTabs samples={[{ label: "curl", code: curlFor(method, path, op) }]} />
                     {okSchema && (
                       <div>
-                        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Response {okCode}</p>
+                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#7B86D0]">Response {okCode}</p>
                         <PropTable rows={flatten(okSchema)} />
                       </div>
                     )}

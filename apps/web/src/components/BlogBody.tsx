@@ -6,9 +6,9 @@ export function BlogBody({ body }: { body: string }) {
   const flushList = (key: string) => {
     if (list.length === 0) return;
     out.push(
-      <ul key={key} className="my-3 space-y-1 pl-5">
+      <ul key={key} className="my-3 space-y-2 pl-5">
         {list.map((li) => (
-          <li key={li} className="list-disc">
+          <li key={li} className="list-disc marker:text-[#7B86D0]">
             {li}
           </li>
         ))}
@@ -20,7 +20,7 @@ export function BlogBody({ body }: { body: string }) {
     if (block.startsWith("## ")) {
       flushList(`l${i}`);
       out.push(
-        <h2 key={i} className="mt-8 text-xl font-semibold text-slate-900">
+        <h2 key={i} className="mt-12 border-t border-[#E3E8FA] pt-8 text-2xl font-medium tracking-[-0.03em] text-[#465078] sm:text-3xl">
           {block.slice(3)}
         </h2>,
       );
@@ -30,7 +30,7 @@ export function BlogBody({ body }: { body: string }) {
     } else {
       flushList(`l${i}`);
       out.push(
-        <p key={i} className="leading-7 text-slate-700">
+        <p key={i} className="text-base leading-8 text-[#4A5578] sm:text-[17px]">
           {block}
         </p>,
       );

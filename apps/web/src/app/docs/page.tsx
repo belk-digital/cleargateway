@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Callout } from "@/components/docs/Callout";
+import { SpotlightCard, StaggerGroup, StaggerItem } from "@/components/motion/Motion";
 
 const CARDS = [
   ["/docs/quickstart", "Quickstart", "Create your first payment and receive a webhook in about ten minutes."],
@@ -39,14 +39,19 @@ export default function Page() {
       </ul>
 
       <h2>Where to go next</h2>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <StaggerGroup className="grid gap-4 sm:grid-cols-2">
         {CARDS.map(([href, title, body]) => (
-          <Link key={href} href={href!} className="!no-underline rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:border-brand">
-            <p className="font-semibold !text-slate-900">{title}</p>
-            <p className="mt-1 text-sm !text-slate-600">{body}</p>
-          </Link>
+          <StaggerItem key={href} className="!m-0">
+            <SpotlightCard href={href!} className="h-full p-5">
+              <p className="flex items-center justify-between font-semibold !text-slate-900">
+                {title}
+                <span className="text-[#5B5BF0] transition-transform duration-300 group-hover/spot:translate-x-1">→</span>
+              </p>
+              <p className="mt-1 text-sm !text-slate-600">{body}</p>
+            </SpotlightCard>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
 
       <h2>Key ideas</h2>
       <ul>
