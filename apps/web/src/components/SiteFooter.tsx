@@ -142,18 +142,7 @@ export function SiteFooter() {
               ))}
             </div>
             <p className="mt-10 text-sm text-white/85">
-              Copyright © {SITE_NAME} {new Date().getFullYear()}. Testnet only: no real money moves.
-            </p>
-            <p className="mt-2 text-sm text-white/85">
-              Designed and developed by{" "}
-              <a
-                href="https://belkdigital.com"
-                target="_blank"
-                rel="noreferrer"
-                className="animate-gradient-x bg-gradient-to-r from-[#7FE8FF] via-white to-[#F2B8FF] bg-[length:200%_auto] bg-clip-text font-semibold text-transparent transition hover:brightness-110"
-              >
-                Belk Digital
-              </a>
+              Copyright © {SITE_NAME} {new Date().getFullYear()}.
             </p>
           </div>
         </motion.div>
