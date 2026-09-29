@@ -39,6 +39,9 @@ const SNIPPET = `curl ${API_URL}/v1/payment_intents \\
 # amount is in USDC base units: 25500000 = 25.50 USDC
 # the response contains a checkout_url to send your customer to`;
 
+// The "Create a payment" curl sample below the marquee is hidden for now. Flip this to bring it back.
+const SHOW_CODE_SAMPLE = false;
+
 const MARQUEE = ["Non-custodial", "USDC on Base", "HMAC-signed webhooks", "Idempotent API", "Double-entry ledger", "Reorg-safe confirmations", "Two-factor staff", "Generated API docs"];
 
 export default function Home() {
@@ -51,11 +54,13 @@ export default function Home() {
 
         <Marquee items={MARQUEE} />
 
-        <section className="mx-auto max-w-3xl px-4 py-20">
-          <Reveal>
-            <CodeTabs samples={[{ label: "Create a payment", code: SNIPPET }]} />
-          </Reveal>
-        </section>
+        {SHOW_CODE_SAMPLE && (
+          <section className="mx-auto max-w-3xl px-4 py-20">
+            <Reveal>
+              <CodeTabs samples={[{ label: "Create a payment", code: SNIPPET }]} />
+            </Reveal>
+          </section>
+        )}
 
         <AsciiHands />
 

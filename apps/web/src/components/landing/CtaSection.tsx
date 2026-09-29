@@ -16,37 +16,47 @@ function ApiCard() {
       transition={{ delay: 0.3, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       className="relative mx-auto w-full max-w-sm"
     >
-      <motion.div animate={reduce ? undefined : { y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
-        <div className="overflow-hidden rounded-2xl border border-white/40 bg-[#1B1F5C]/30 shadow-[0_24px_70px_rgba(30,20,120,0.35)] backdrop-blur-xl">
-          <div className="flex items-center gap-1.5 border-b border-white/20 px-4 py-3">
-            {[0, 1, 2].map((i) => (
-              <span key={i} className="h-2.5 w-2.5 rounded-full bg-white/50" />
+      {/* soft shadow on the "floor" that breathes as the card floats */}
+      <motion.span
+        aria-hidden
+        className="absolute -bottom-6 left-1/2 h-4 w-3/4 -translate-x-1/2 rounded-full bg-indigo-950/30 blur-xl"
+        animate={reduce ? undefined : { scaleX: [1, 0.85, 1], opacity: [0.5, 0.3, 0.5] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        animate={reduce ? undefined : { y: [0, -14, 0], rotate: [-0.6, 0.6, -0.6] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <div className="overflow-hidden rounded-2xl border border-white bg-white shadow-[0_30px_80px_rgba(30,20,120,0.35)]">
+          <div className="flex items-center gap-1.5 border-b border-slate-100 px-4 py-3">
+            {["bg-rose-300", "bg-amber-300", "bg-emerald-300"].map((c) => (
+              <span key={c} className={`h-2.5 w-2.5 rounded-full ${c}`} />
             ))}
-            <span className="ml-3 truncate text-xs text-white/80">POST /v1/payment_intents</span>
+            <span className="ml-3 truncate text-xs font-medium text-[#5A6490]">POST /v1/payment_intents</span>
           </div>
-          <pre className="overflow-hidden px-4 py-4 font-mono text-[12px] leading-6 text-white/95">
+          <pre className="overflow-hidden px-4 py-4 font-mono text-[12px] leading-6 text-[#3F4A7A]">
             <code>{`{
   "amount": "25500000",
   "merchant_order_id": "order-1042"
 }`}</code>
           </pre>
-          <div className="border-t border-white/20 bg-white/10 px-4 py-3">
-            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-200">
+          <div className="border-t border-slate-100 bg-[#F6F7FF] px-4 py-3">
+            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-300" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
               201 Created
             </div>
-            <p className="mt-1.5 truncate font-mono text-[11px] text-white/80">checkout_url: &quot;https://…/pay/pi_…&quot;</p>
+            <p className="mt-1.5 truncate font-mono text-[11px] text-[#6A7397]">checkout_url: &quot;https://…/pay/pi_…&quot;</p>
           </div>
         </div>
       </motion.div>
       <motion.span
         aria-hidden
-        className="absolute -right-3 -top-4 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#5B5BF0] shadow-lg"
-        animate={reduce ? undefined : { y: [0, 6, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        className="absolute -right-3 -top-4 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#5B5BF0] shadow-lg shadow-indigo-900/20"
+        animate={reduce ? undefined : { y: [0, 8, 0], rotate: [2, -2, 2] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
       >
         25.50 USDC
       </motion.span>
